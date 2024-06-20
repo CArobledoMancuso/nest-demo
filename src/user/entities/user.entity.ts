@@ -1,5 +1,6 @@
 import { Order } from 'src/orders/entities/order.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from '../enum/role.enum';
 
 @Entity()
 export class User {
@@ -34,4 +35,7 @@ export class User {
 
   @Column()
   createdAt: string;
+
+  @Column({ default: Role.User })
+  administrator: string;
 }
