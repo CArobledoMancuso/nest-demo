@@ -1,6 +1,8 @@
+
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
 import { UserResponseDto } from './dto/response.user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -46,6 +48,10 @@ export class UserService {
 
   async findOneBy(id: string) {
     return this.usersRepository.findOneBy({ id });
+  }
+
+  async findByEmail(email: string) {
+    return this.usersRepository.findOne({ where: { email: email } });
   }
 
   pag(page, limit) {
