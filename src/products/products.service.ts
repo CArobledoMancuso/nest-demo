@@ -56,7 +56,13 @@ export class ProductsService {
     return product.price;
   }
 
-  async uploadFile(file: UploadFileDto, id: string) {
+  async uploadFile(file: Express.Multer.File, id: string) {
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
+
+    console.log(file.fieldname);  // Asegúrate de que 'file' no es undefined
+
     const url = await this.fileUploadService.uploadFile({
       fieldname: file.fieldname,
       buffer: file.buffer,

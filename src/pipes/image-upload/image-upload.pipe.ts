@@ -10,6 +10,7 @@ export class ImageUploadPipe implements PipeTransform {
   ];
 
   private readonly maxSizeInBytes = 10485760; // 10MB
+
   transform(file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
@@ -22,5 +23,7 @@ export class ImageUploadPipe implements PipeTransform {
     if (file.size > this.maxSizeInBytes) {
       throw new BadRequestException('File too large');
     }
+
+    return file; // Asegúrate de devolver el archivo validado
   }
 }

@@ -89,9 +89,11 @@ export class ProductsController {
     @Param('id') id: string,
     @UploadedFile(new ImageUploadPipe()) file: Express.Multer.File,
   ) {
+    console.log(file); // Añadir log para depurar
     return this.productsService.uploadFile(file, id);
   }
 
+  
   @Get(':id/image')
   @HttpCode(200)
   async getImage(@Param('id') id: string) {
