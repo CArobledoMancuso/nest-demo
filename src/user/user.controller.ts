@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   HttpCode,
@@ -12,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
   Req,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,6 +22,8 @@ import { Roles } from 'src/decorator/roles/roles.decorator';
 import { Role } from './enum/role.enum';
 import { RolesGuard } from 'src/guards/roles/roles.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserResponseDto } from './dto/response.user.dto';
+
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -39,37 +41,58 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(DateAdderInterceptor)
-  create(@Body() createUserDto: CreateUserDto, @Req() request) {
+  async create(@Body() createUserDto: CreateUserDto, @Req() request) {
     const user = { ...createUserDto, createdAt: request.date };
-    return this.userService.create(user);
+    const createdUser = await this.userService.create(user);
+    return { id: createdUser.id };
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  findAll() {
-    return this.userService.findAll();
+  async findAll() {
+    const users = await this.userService.findAll();
+    return users.map(user => {
+      const { password, ...rest } = user;
+      return new UserResponseDto(rest);
+    });
   }
 
   @Get('pag')
-  findWithPagination(
+  @HttpCode(HttpStatus.OK)
+  async findWithPagination(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    return this.userService.pag(page, limit);
+    const users = await this.userService.pag(page, limit);
+    return users.map(user => {
+      const { password, ...rest } = user;
+      return new UserResponseDto(rest);
+    });
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  async findOne(@Param('id') id: string) {
+    const user = await this.userService.findOne(id);
+    const { password, ...rest } = user;
+    return new UserResponseDto(rest);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @Put(':id')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    const updatedUser = await this.userService.update(id, updateUserDto);
+    return { id: updatedUser.id };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard)
+  async remove(@Param('id') id: string) {
+    const deletedUser = await this.userService.remove(id);
+    return { id: deletedUser.id };
   }
 }

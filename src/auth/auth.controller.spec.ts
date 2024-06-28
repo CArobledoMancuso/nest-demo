@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { hash } from 'bcrypt';
 import { SignUpAuthDto } from './dto/signup-auth.dto';
-import { UserResponseDto } from 'src/user/dto/response.user.dto';
+import { UserResponseDto } from 'src/user/dto/response-user.dto';
 
 describe('AuthController', () => {
   let controller: AuthController;

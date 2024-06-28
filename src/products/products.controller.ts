@@ -13,6 +13,7 @@ import {
   ParseUUIDPipe,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -21,6 +22,7 @@ import { IsUUID } from 'class-validator';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageUploadPipe } from 'src/pipes/image-upload/image-upload.pipe';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
 @Controller('products')
 export class ProductsController {
   constructor(
@@ -30,6 +32,7 @@ export class ProductsController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(AuthGuard)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -55,6 +58,7 @@ export class ProductsController {
 
   @Put(':id')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: Partial<UpdateProductDto>,
@@ -74,6 +78,7 @@ export class ProductsController {
 
   @Delete(':id')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   remove(@Param('id') id: string) {
     const product = this.productsService.findOne(id);
     if (!product) {
@@ -84,6 +89,7 @@ export class ProductsController {
 
   @Post(':id/upload')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @Param('id') id: string,
@@ -96,6 +102,7 @@ export class ProductsController {
   
   @Get(':id/image')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   async getImage(@Param('id') id: string) {
     return this.fileUploadService.getUrl(id);
   }

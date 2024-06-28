@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UserResponseDto {
   @ApiProperty({
     type: String,
-    description: 'The uuid of the user, asigned by the database',
+    description: 'The uuid of the user, assigned by the database',
     required: true,
   })
   id: string;
@@ -51,13 +51,6 @@ export class UserResponseDto {
   city?: string;
 
   constructor(partial: Partial<UserResponseDto>) {
-    const { id, name, email, address, phone, country, city } = partial;
-    this.id = id;
-    this.name = name;
-    this.email = email;
-    this.address = address;
-    this.phone = phone;
-    this.country = country;
-    this.city = city;
+    Object.assign(this, partial);
   }
 }
