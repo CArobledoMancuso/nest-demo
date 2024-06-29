@@ -12,6 +12,7 @@ import {
   UseInterceptors,
   Req,
   Put,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,7 +24,6 @@ import { Role } from './enum/role.enum';
 import { RolesGuard } from 'src/guards/roles/roles.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserResponseDto } from './dto/response.user.dto';
-
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -74,7 +74,7 @@ export class UserController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     const user = await this.userService.findOne(id);
     const { password, ...rest } = user;
     return new UserResponseDto(rest);
@@ -83,7 +83,10 @@ export class UserController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  async update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     const updatedUser = await this.userService.update(id, updateUserDto);
     return { id: updatedUser.id };
   }
@@ -91,7 +94,7 @@ export class UserController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     const deletedUser = await this.userService.remove(id);
     return { id: deletedUser.id };
   }

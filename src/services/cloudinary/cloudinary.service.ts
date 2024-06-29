@@ -35,7 +35,11 @@ export class CloudinaryService {
   }
 
   async getUrl(publicId: string): Promise<string> {
-    const result = await cloudinary.api.resource(publicId);
-    return result;
+    try {
+      const result = await cloudinary.api.resource(publicId);
+      return result.secure_url; // Asegúrate de devolver la URL segura
+    } catch (error) {
+      throw new Error(`Failed to retrieve resource: ${error.message}`);
+    }
   }
 }

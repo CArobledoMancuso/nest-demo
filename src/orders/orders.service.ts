@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto, PartialProductDTO } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,17 +19,19 @@ export class OrdersService {
     private readonly productService: ProductsService,
     private readonly orderDetailsService: OrderDetailsService,
   ) {}
+
   async create(createOrderDto: CreateOrderDto) {
     const { userId, products } = createOrderDto;
     const user = await this.userService.findOne(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
-    const order = {
+    const order = this.orderRepository.create({
       user: user,
       date: new Date(),
-    };
-    const orderEntity = await this.orderRepository.save(
-      this.orderRepository.create(order),
-    );
+    });
+    const orderEntity = await this.orderRepository.save(order);
 
     const total = await this.calculateTotal(products);
 
@@ -38,15 +40,12 @@ export class OrdersService {
     orderDetail.products = products;
     orderDetail.order = orderEntity;
 
-    const orderDetailEntity =
-      await this.orderDetailsService.create(orderDetail);
+    const orderDetailEntity = await this.orderDetailsService.create(orderDetail);
 
     return new OrderResponseDto(orderDetailEntity);
   }
 
-  private async calculateTotal(
-    products: Array<PartialProductDTO>,
-  ): Promise<number> {
+  private async calculateTotal(products: Array<PartialProductDTO>): Promise<number> {
     let total = 0;
     for (const product of products) {
       total += await this.productService.buyProduct(product.id);
@@ -54,12 +53,15 @@ export class OrdersService {
     return total;
   }
 
-  findAll() {
-    return `This action returns all orders`;
+  async findAll() {
+    return this.orderRepository.find();
   }
 
   async findOne(id: string) {
-    const order = await this.orderRepository.findOneBy({ id });
+    const order = await this.orderRepository.findOne({ where: { id } });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
     const orderDetail = await this.orderDetailsService.findOneByOrderId(
       order.id,
       ['products', 'order'],
@@ -67,11 +69,32 @@ export class OrdersService {
     return orderDetail;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async update(id: string, updateOrderDto: UpdateOrderDto) {
+    const order = await this.orderRepository.findOne({ where: { id } });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Mapeo explícito de propiedades del DTO a la entidad
+    const updatedOrder = { ...order, ...updateOrderDto };
+
+    await this.orderRepository.save(updatedOrder);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  async remove(id: string) {
+    const order = await this.orderRepository.findOne({ where: { id } });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Elimina primero los detalles de la orden si existen
+    if (order.orderDetails) {
+      await this.orderDetailsService.remove(order.orderDetails.id);
+    }
+
+    // Luego elimina la orden
+    await this.orderRepository.delete(id);
+    return { message: 'Order removed successfully' };
   }
 }
