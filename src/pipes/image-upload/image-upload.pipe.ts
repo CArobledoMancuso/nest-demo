@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 @Injectable()
-export class ImageUploadPipe implements PipeTransform {
+export class FileValidationPipe implements PipeTransform {
   private readonly allowedMimeTypes = [
     'image/png',
     'image/jpeg',
@@ -9,7 +9,7 @@ export class ImageUploadPipe implements PipeTransform {
     'image/gif',
   ];
 
-  private readonly maxSizeInBytes = 10485760; // 10MB
+  private readonly maxSizeInBytes = 20 * 1024 * 1024; // 20MB
 
   transform(file: Express.Multer.File) {
     if (!file) {
@@ -24,6 +24,6 @@ export class ImageUploadPipe implements PipeTransform {
       throw new BadRequestException('File too large');
     }
 
-    return file; // Asegúrate de devolver el archivo validado
+    return file; 
   }
 }

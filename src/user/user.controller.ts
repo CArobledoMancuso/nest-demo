@@ -34,18 +34,19 @@ export class UserController {
   @Get('admin')
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)
+  @HttpCode(HttpStatus.OK)
   getAdmin() {
     return 'This route is for admin only';
   }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(DateAdderInterceptor)
-  async create(@Body() createUserDto: CreateUserDto, @Req() request) {
-    const user = { ...createUserDto, createdAt: request.date };
-    const createdUser = await this.userService.create(user);
-    return { id: createdUser.id };
-  }
+  // @Post()
+  // @HttpCode(HttpStatus.CREATED)
+  // @UseInterceptors(DateAdderInterceptor)
+  // async create(@Body() createUserDto: CreateUserDto, @Req() request) {
+  //   const user = { ...createUserDto, createdAt: request.date };
+  //   const createdUser = await this.userService.create(user);
+  //   return { id: createdUser.id };
+  // }
 
   @Get()
   @HttpCode(HttpStatus.OK)

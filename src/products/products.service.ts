@@ -6,7 +6,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
-import { UploadFileDto } from 'src/file-upload/dto/upload-file.dto';
 
 @Injectable()
 export class ProductsService {
@@ -56,21 +55,4 @@ export class ProductsService {
     return product.price;
   }
 
-  async uploadFile(file: Express.Multer.File, id: string) {
-    if (!file) {
-      throw new Error('No file uploaded');
-    }
-
-    console.log(file.fieldname);  // Asegúrate de que 'file' no es undefined
-
-    const url = await this.fileUploadService.uploadFile({
-      fieldname: file.fieldname,
-      buffer: file.buffer,
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-    });
-    await this.productRepository.update(id, { imgUrl: url });
-    return { imgUrl: url };
-  }
 }

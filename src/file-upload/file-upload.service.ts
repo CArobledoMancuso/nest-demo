@@ -1,38 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { CreateFileUploadDto } from './dto/create-file-upload.dto';
-import { UpdateFileUploadDto } from './dto/update-file-upload.dto';
-import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { UploadFileDto } from './dto/upload-file.dto';
+import { Product } from 'src/products/entities/product.entity';
+import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
 
 @Injectable()
 export class FileUploadService {
-  constructor(private readonly cloudinaryService: CloudinaryService) {}
+  constructor(
+    private readonly cloudinaryService: CloudinaryService,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+  ) {}
 
-  async uploadFile(file: UploadFileDto) {
-    return this.cloudinaryService.uploadFile(file.buffer, file.originalname);
-  }
+  async uploadFile(file: Express.Multer.File, id: string) {
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
 
-  async getUrl(publicId: string) {
-    return this.cloudinaryService.getUrl(publicId);
-  }
+    console.log(file.fieldname);  // Asegúrate de que 'file' no es undefined
 
-  create(createFileUploadDto: CreateFileUploadDto) {
-    return 'This action adds a new fileUpload';
-  }
+    const url = await this.cloudinaryService.uploadFile({
+      fieldname: file.fieldname,
+      buffer: file.buffer,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+    });
 
-  findAll() {
-    return `This action returns all fileUpload`;
-  }
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} fileUpload`;
-  }
+    product.imgUrl = url;
+    await this.productRepository.save(product);
 
-  update(id: number, updateFileUploadDto: UpdateFileUploadDto) {
-    return `This action updates a #${id} fileUpload`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} fileUpload`;
+    return { imgUrl: url };
   }
 }

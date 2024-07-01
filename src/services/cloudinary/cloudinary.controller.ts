@@ -1,20 +1,26 @@
-import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
-import { CloudinaryService } from './cloudinary.service';
+import { Controller, Get, Param, NotFoundException, Post, HttpCode, UseGuards, UseInterceptors, ParseUUIDPipe, UploadedFile, BadRequestException } from '@nestjs/common';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express/multer';
+import { FileValidationPipe } from 'src/pipes/image-upload/image-upload.pipe';
+import { FileUploadService } from 'src/file-upload/file-upload.service';
 
-@Controller('images')
-export class ImagesController {
-  constructor(private readonly cloudinaryService: CloudinaryService) {}
+@Controller('file-upload')
+export class FileUploadController {
+  constructor(private readonly fileUploadService: FileUploadService) {}
 
-  @Get(':publicId')
-  async getImage(@Param('publicId') publicId: string) {
-    try {
-      const imageUrl = await this.cloudinaryService.getUrl(publicId);
-      if (!imageUrl) {
-        throw new NotFoundException(`Image with ID ${publicId} not found`);
-      }
-      return { imageUrl };
-    } catch (error) {
-      throw new NotFoundException(error.message);
+  @Post('uploadImage/:id')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @UploadedFile(new FileValidationPipe()) file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
     }
+
+    const { imgUrl } = await this.fileUploadService.uploadFile(file, id);
+    return { imgUrl };
   }
 }

@@ -1,11 +1,18 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileUploadService } from './file-upload.service';
 import { FileUploadController } from './file-upload.controller';
-import { CloudinaryService } from 'src/services/cloudinary/cloudinary.service';
+import { Product } from '../products/entities/product.entity';
+import { CloudinaryService } from '../services/cloudinary/cloudinary.service';
+import { ProductsModule } from '../products/products.module';
 
 @Module({
-  controllers: [FileUploadController],
+  imports: [
+    TypeOrmModule.forFeature([Product]),
+    forwardRef(() => ProductsModule),
+  ],
   providers: [FileUploadService, CloudinaryService],
+  controllers: [FileUploadController],
   exports: [FileUploadService],
 })
 export class FileUploadModule {}

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { UploadApiOptions, v2 as cloudinary } from 'cloudinary';
+import { UploadFileDto } from 'src/file-upload/dto/upload-file.dto';
+
+
 @Injectable()
 export class CloudinaryService {
   constructor() {
-    dotenv.config({
-      path: '.env.development.local',
-    });
+    dotenv.config();
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
@@ -14,21 +15,18 @@ export class CloudinaryService {
     });
   }
 
-  async uploadFile(buffer: Buffer, orginalName?: string): Promise<string> {
+  async uploadFile({ buffer, originalname }: UploadFileDto): Promise<string> {
     const options: UploadApiOptions = {
       folder: 'uploads',
-      public_id: orginalName,
+      public_id: originalname,
       resource_type: 'auto',
     };
 
     return new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        options,
-        (error, result) => {
-          //return secure url
-          error ? reject(error) : resolve(result.secure_url);
-        },
-      );
+      const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+        //return secure url
+        error ? reject(error) : resolve(result.secure_url);
+      });
       stream.write(buffer);
       stream.end();
     });

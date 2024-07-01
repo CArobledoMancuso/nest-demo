@@ -20,7 +20,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ImageUploadPipe } from 'src/pipes/image-upload/image-upload.pipe';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
 
 @Controller('products')
@@ -84,23 +83,23 @@ export class ProductsController {
     return this.productsService.remove(id);
   }
 
-  @Post('/files/uploadImage/:id')
-  @HttpCode(200)
-  @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @UploadedFile(new ImageUploadPipe()) file: Express.Multer.File,
-  ) {
-    console.log(file); // Añadir log para depurar
-    return this.productsService.uploadFile(file, id);
-  }
+  // @Post('/files/uploadImage/:id')
+  // @HttpCode(200)
+  // @UseGuards(AuthGuard)
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadFile(
+  //   @Param('id', new ParseUUIDPipe()) id: string,
+  //   @UploadedFile(new ImageUploadPipe()) file: Express.Multer.File,
+  // ) {
+  //   console.log(file); // Añadir log para depurar
+  //   return this.productsService.uploadFile(file, id);
+  // }
 
-  @Get(':id/image')
-  @HttpCode(200)
-  @UseGuards(AuthGuard)
-  async getImage(@Param('id', new ParseUUIDPipe()) id: string) {
+  // @Get(':id/image')
+  // @HttpCode(200)
+  // @UseGuards(AuthGuard)
+  // async getImage(@Param('id', new ParseUUIDPipe()) id: string) {
     
-    return this.fileUploadService.getUrl(id);
-  }
+  //   return this.fileUploadService.getUrl(id);
+  // }
 }
