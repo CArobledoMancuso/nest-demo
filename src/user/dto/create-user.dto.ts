@@ -13,7 +13,7 @@ import {
 export class CreateUserDto {
   @ApiProperty({
     type: String,
-    description: 'The name of the user',
+    description: 'El nombre del usuario',
     required: true,
   })
   @MaxLength(50)
@@ -23,7 +23,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: String,
-    description: 'The email of the user',
+    description: 'El correo electrónico del usuario',
     required: true,
   })
   @MaxLength(50)
@@ -32,7 +32,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: String,
-    description: 'The password of the user',
+    description: 'La contraseña del usuario',
     required: true,
   })
   @MaxLength(20)
@@ -40,7 +40,7 @@ export class CreateUserDto {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[=!@#$%^&*])[A-Za-z\d=!@#$%^&*]{8,15}$/,
     {
       message:
-        'Password must contain at least one lowercase letter, one uppercase letter, one number, one special character (= !@#$%^&*) and be between 8 and 15 characters long',
+        'La contraseña debe contener al menos una letra minúscula, una letra mayúscula, un número, un carácter especial (= !@#$%^&*) y tener entre 8 y 15 caracteres',
     },
   )
   @IsString()
@@ -48,7 +48,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: String,
-    description: 'The address of the user',
+    description: 'La dirección del usuario',
     required: true,
   })
   @IsString()
@@ -56,7 +56,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: String,
-    description: 'The phone of the user',
+    description: 'El teléfono del usuario',
     required: true,
   })
   @IsNotEmpty()
@@ -65,7 +65,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: String,
-    description: 'The country of the user',
+    description: 'El país del usuario',
     required: false,
   })
   @MaxLength(50)
@@ -75,7 +75,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: String,
-    description: 'The city of the user',
+    description: 'La ciudad del usuario',
     required: false,
   })
   @MaxLength(50)
@@ -85,7 +85,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: String,
-    description: 'The date of creation of the user',
+    description: 'La fecha de creación del usuario',
     required: true,
   })
   @IsString()

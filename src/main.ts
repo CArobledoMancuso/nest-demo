@@ -16,8 +16,8 @@ async function bootstrap() {
     }),
   );
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Nest demo')
-    .setDescription('Demo for M4 backend')
+    .setTitle('Cristian Robledo')
+    .setDescription('Presentacio del proyecto del modulo 4 back-end')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

@@ -3,63 +3,63 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UserResponseDto {
   @ApiProperty({
     type: String,
-    description: 'The uuid of the user, assigned by the database',
+    description: 'El UUID del usuario, asignado por la base de datos',
     required: true,
   })
   id: string;
 
   @ApiProperty({
     type: String,
-    description: 'The name of the user',
+    description: 'El nombre del usuario',
     required: true,
   })
   name: string;
 
   @ApiProperty({
     type: String,
-    description: 'The email of the user',
+    description: 'El correo electrónico del usuario',
     required: true,
   })
   email: string;
 
   @ApiProperty({
     type: String,
-    description: 'The address of the user',
+    description: 'La dirección del usuario',
     required: true,
   })
   address: string;
 
   @ApiProperty({
     type: String,
-    description: 'The phone of the user',
+    description: 'El teléfono del usuario',
     required: true,
   })
   phone: string;
 
   @ApiProperty({
     type: String,
-    description: 'The country of the user',
+    description: 'El país del usuario',
     required: false,
   })
   country?: string;
 
   @ApiProperty({
     type: String,
-    description: 'The city of the user',
+    description: 'La ciudad del usuario',
     required: false,
   })
   city?: string;
 
   @ApiProperty({
     type: String,
-    description: 'The creation date of the user',
+    description: 'La fecha de creación del usuario',
     required: true,
   })
   createdAt: string;
 
   @ApiProperty({
     type: Boolean,
-    description: 'Whether the user is an admin or not',
+    description: 'Si el usuario es administrador o no',
     required: true,
   })
   admin: boolean;

@@ -22,7 +22,7 @@ import { DateAdderInterceptor } from 'src/interceptors/date-adder/date-adder.int
 import { Roles } from 'src/decorator/roles/roles.decorator';
 import { Role } from './enum/role.enum';
 import { RolesGuard } from 'src/guards/roles/roles.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiParam, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { UserResponseDto } from './dto/response.user.dto';
 
 @ApiBearerAuth()
@@ -35,6 +35,7 @@ export class UserController {
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Obtener todos los administradores' })
   async findAllAdmins() {
     const admins = await this.userService.findAdmins();
     return admins.map(user => {
@@ -46,7 +47,8 @@ export class UserController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
-   @Roles(Role.Admin) // Sólo accesible por administradores
+  @Roles(Role.Admin) // Sólo accesible por administradores
+  @ApiOperation({ summary: 'Obtener todos los usuarios' })
   async findAll() {
     const users = await this.userService.findAll();
     return users.map(user => {
@@ -57,6 +59,9 @@ export class UserController {
 
   @Get('pag')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Obtener usuarios con paginación' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   async findWithPagination(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
@@ -71,6 +76,8 @@ export class UserController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Obtener un usuario por ID' })
+  @ApiParam({ name: 'id', description: 'ID del usuario', type: String })
   async findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     const user = await this.userService.findOne(id);
     const { password, ...rest } = user;
@@ -81,6 +88,9 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin) // Sólo accesible por administradores
+  @ApiOperation({ summary: 'Actualizar un usuario' })
+  @ApiParam({ name: 'id', description: 'ID del usuario', type: String })
+  @ApiBody({ type: UpdateUserDto })
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -93,6 +103,8 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin) // Sólo accesible por administradores
+  @ApiOperation({ summary: 'Eliminar un usuario' })
+  @ApiParam({ name: 'id', description: 'ID del usuario', type: String })
   async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     const deletedUser = await this.userService.remove(id);
     return { id: deletedUser.id };
@@ -102,6 +114,8 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(Role.Admin) // Sólo accesible por administradores
+  @ApiOperation({ summary: 'Asignar rol de administrador a un usuario' })
+  @ApiParam({ name: 'id', description: 'ID del usuario', type: String })
   async assignAdminRole(@Param('id', new ParseUUIDPipe()) id: string) {
     const updatedUser = await this.userService.assignAdminRole(id);
     return { id: updatedUser.id, admin: updatedUser.admin };
