@@ -19,8 +19,10 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { FileUploadService } from 'src/file-upload/file-upload.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/guards/auth/auth.guard';
+import { RolesGuard } from 'src/guards/roles/roles.guard';
+import { Roles } from 'src/decorator/roles/roles.decorator';
+import { Role } from 'src/user/enum/role.enum';
 
 @Controller('products')
 export class ProductsController {
@@ -31,7 +33,8 @@ export class ProductsController {
 
   @Post()
   @HttpCode(201)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin) // Sólo accesible por administradores
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -54,52 +57,21 @@ export class ProductsController {
 
   @Put(':id')
   @HttpCode(200)
-  @UseGuards(AuthGuard)
-  async update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateProductDto: Partial<UpdateProductDto>,
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin) // Sólo accesible por administradores
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateProductDto: UpdateProductDto,
   ) {
-    const product = await this.productsService.findOne(id);
-    if (!product) {
-      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
-    }
-
-    const updateProduct = await this.productsService.update(
-      id,
-      updateProductDto as UpdateProductDto,
-    );
-
-    return updateProduct;
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
-  @HttpCode(200)
-  @UseGuards(AuthGuard)
-  async remove(@Param('id', new ParseUUIDPipe()) id: string) {
-    const product = await this.productsService.findOne(id);
-    if (!product) {
-      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
-    }
+  @HttpCode(204)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin) // Sólo accesible por administradores
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
   }
 
-  // @Post('/files/uploadImage/:id')
-  // @HttpCode(200)
-  // @UseGuards(AuthGuard)
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadFile(
-  //   @Param('id', new ParseUUIDPipe()) id: string,
-  //   @UploadedFile(new ImageUploadPipe()) file: Express.Multer.File,
-  // ) {
-  //   console.log(file); // Añadir log para depurar
-  //   return this.productsService.uploadFile(file, id);
-  // }
-
-  // @Get(':id/image')
-  // @HttpCode(200)
-  // @UseGuards(AuthGuard)
-  // async getImage(@Param('id', new ParseUUIDPipe()) id: string) {
-    
-  //   return this.fileUploadService.getUrl(id);
-  // }
 }

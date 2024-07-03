@@ -1,12 +1,7 @@
 import { OrderDetail } from 'src/order-details/entities/order-detail.entity';
 import { User } from 'src/user/entities/user.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  OneToOne,
-  Column,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, OneToOne, Column } from 'typeorm';
+
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')

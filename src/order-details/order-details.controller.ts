@@ -22,6 +22,7 @@ export class OrderDetailsController {
     return this.orderDetailsService.findOne(id);
   }
 
+  
   @Patch(':id')
   update(@Param('id', new ParseUUIDPipe()) id: string, @Body() updateOrderDetailDto: UpdateOrderDetailDto) {
     return this.orderDetailsService.update(id, updateOrderDetailDto);

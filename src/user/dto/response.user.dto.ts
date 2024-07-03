@@ -50,6 +50,20 @@ export class UserResponseDto {
   })
   city?: string;
 
+  @ApiProperty({
+    type: String,
+    description: 'The creation date of the user',
+    required: true,
+  })
+  createdAt: string;
+
+  @ApiProperty({
+    type: Boolean,
+    description: 'Whether the user is an admin or not',
+    required: true,
+  })
+  admin: boolean;
+
   constructor(partial: Partial<UserResponseDto>) {
     Object.assign(this, partial);
   }

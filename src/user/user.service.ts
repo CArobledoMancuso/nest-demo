@@ -46,4 +46,14 @@ export class UserService {
       take: limit,
     });
   }
+
+  async assignAdminRole(id: string): Promise<User> {
+    const user = await this.findOne(id);
+    user.admin = true;
+    return this.userRepository.save(user);
+  }
+
+  async findAdmins(): Promise<User[]> {
+    return this.userRepository.find({ where: { admin: true } });
+  }
 }

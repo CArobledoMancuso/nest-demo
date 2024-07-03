@@ -31,30 +31,26 @@ import { UserResponseDto } from './dto/response.user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('admin')
+  @Get('admins')
   @Roles(Role.Admin)
   @UseGuards(AuthGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
-  getAdmin() {
-    return 'This route is for admin only';
+  async findAllAdmins() {
+    const admins = await this.userService.findAdmins();
+    return admins.map(user => {
+      const { password, admin, ...rest } = user;
+      return new UserResponseDto(rest);
+    });
   }
-
-  // @Post()
-  // @HttpCode(HttpStatus.CREATED)
-  // @UseInterceptors(DateAdderInterceptor)
-  // async create(@Body() createUserDto: CreateUserDto, @Req() request) {
-  //   const user = { ...createUserDto, createdAt: request.date };
-  //   const createdUser = await this.userService.create(user);
-  //   return { id: createdUser.id };
-  // }
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+   @Roles(Role.Admin) // Sólo accesible por administradores
   async findAll() {
     const users = await this.userService.findAll();
     return users.map(user => {
-      const { password, ...rest } = user;
+      const { password, admin, ...rest } = user;
       return new UserResponseDto(rest);
     });
   }
@@ -83,7 +79,8 @@ export class UserController {
 
   @Put(':id')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin) // Sólo accesible por administradores
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -94,9 +91,19 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin) // Sólo accesible por administradores
   async remove(@Param('id', new ParseUUIDPipe()) id: string) {
     const deletedUser = await this.userService.remove(id);
     return { id: deletedUser.id };
+  }
+
+  @Put(':id/admin')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin) // Sólo accesible por administradores
+  async assignAdminRole(@Param('id', new ParseUUIDPipe()) id: string) {
+    const updatedUser = await this.userService.assignAdminRole(id);
+    return { id: updatedUser.id, admin: updatedUser.admin };
   }
 }

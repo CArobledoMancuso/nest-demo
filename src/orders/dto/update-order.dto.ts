@@ -1,9 +1,11 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsArray, IsOptional, IsNumber, IsString } from 'class-validator';
 
 export class UpdateOrderDto {
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsArray()
+  products?: Array<{ id: string; quantity: number }>;
 
-  // Agrega otras propiedades según tu entidad Order
+  @IsOptional()
+  @IsNumber()
+  price?: number;
 }

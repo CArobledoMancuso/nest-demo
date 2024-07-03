@@ -1,13 +1,13 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
-import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
-import { hash } from 'bcrypt';
-import { SignUpAuthDto } from './dto/signup-auth.dto';
-import { UserResponseDto } from 'src/user/dto/response-user.dto';
+import { UserResponseDto } from "src/user/dto/response.user.dto";
+import { SignUpAuthDto } from "./dto/signup-auth.dto";
+import { AuthController } from "./auth.controller";
+import { UserService } from "src/user/user.service";
+import { JwtService } from "@nestjs/jwt";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { AuthService } from "./auth.service";
+import { Test, TestingModule } from "@nestjs/testing";
+import { hash } from "bcrypt";
+import { User } from "src/user/entities/user.entity";
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -18,9 +18,16 @@ describe('AuthController', () => {
       findByEmail: (email: string) => {
         if (email === 'johndou@email.com') {
           return Promise.resolve({
+            id: '1234fs-1234fs-1234fs-1234fs',
+            name: 'John Doe',
             email: 'johndou@email.com',
             password: hashedPassword,
-            administrator: 'user',
+            address: 'Fake St. 123',
+            phone: '123456789',
+            country: 'Country',
+            city: 'City',
+            admin: false,
+            createdAt: new Date().toISOString(),
           } as User);
         } else {
           return Promise.resolve(undefined);
@@ -28,11 +35,19 @@ describe('AuthController', () => {
       },
       create: (entityLike?: Partial<User>): Promise<User> =>
         Promise.resolve({
-          ...entityLike,
-          administrator: 'user',
           id: '1234fs-1234fs-1234fs-1234fs',
+          name: entityLike?.name || 'John Doe',
+          email: entityLike?.email || 'johndou@email.com',
+          password: hashedPassword,
+          address: entityLike?.address || 'Fake St. 123',
+          phone: entityLike?.phone || '123456789',
+          country: entityLike?.country || 'Country',
+          city: entityLike?.city || 'City',
+          admin: entityLike?.admin || false,
+          createdAt: new Date().toISOString(),
         } as User),
     };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
@@ -57,12 +72,13 @@ describe('AuthController', () => {
 
   const mockSignUpUser = new SignUpAuthDto({
     name: 'John Doe',
-    createdAt: '26/02/2024',
+    email: 'johndou@email.com',
     password: '123456',
     passwordConfirm: '123456',
-    email: 'johndou@email.com',
     address: 'Fake St. 123',
     phone: '123456789',
+    country: 'Country',
+    city: 'City',
   });
 
   const mockSignInUser = new SignUpAuthDto({
@@ -80,6 +96,8 @@ describe('AuthController', () => {
     expect(user).toBeDefined();
     expect(user).toBeInstanceOf(UserResponseDto);
     expect(user).toHaveProperty('id');
+    expect(user).toHaveProperty('createdAt');
+    expect(user).toHaveProperty('admin');
   });
 
   it('signIn() should return a token', async () => {

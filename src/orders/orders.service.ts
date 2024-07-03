@@ -2,13 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto, PartialProductDTO } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { ProductsService } from 'src/products/products.service';
 import { OrderDetailsService } from 'src/order-details/order-details.service';
 import { UserService } from 'src/user/user.service';
 import { CreateOrderDetailDto } from 'src/order-details/dto/create-order-detail.dto';
 import { OrderResponseDto } from './dto/response-order.dto';
+import { OrderDetail } from 'src/order-details/entities/order-detail.entity';
 
 @Injectable()
 export class OrdersService {
@@ -27,22 +28,31 @@ export class OrdersService {
       throw new NotFoundException('User not found');
     }
 
-    const order = this.orderRepository.create({
-      user: user,
-      date: new Date(),
+    // Start transaction
+    const result = await this.orderRepository.manager.transaction(async (manager: EntityManager) => {
+      // Create and save the order
+      const order = manager.create(Order, {
+        user: user,
+        date: new Date(),
+      });
+      const orderEntity = await manager.save(order);
+
+      // Calculate the total price
+      const total = await this.calculateTotal(products);
+
+      // Create and save the order detail
+      const orderDetail = manager.create(OrderDetail, {
+        price: total,
+        products: products,
+        order: orderEntity,
+      });
+
+      const orderDetailEntity = await manager.save(orderDetail);
+
+      return new OrderResponseDto(orderDetailEntity);
     });
-    const orderEntity = await this.orderRepository.save(order);
 
-    const total = await this.calculateTotal(products);
-
-    const orderDetail = new CreateOrderDetailDto();
-    orderDetail.price = total;
-    orderDetail.products = products;
-    orderDetail.order = orderEntity;
-
-    const orderDetailEntity = await this.orderDetailsService.create(orderDetail);
-
-    return new OrderResponseDto(orderDetailEntity);
+    return result;
   }
 
   private async calculateTotal(products: Array<PartialProductDTO>): Promise<number> {
@@ -75,7 +85,6 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    // Mapeo explícito de propiedades del DTO a la entidad
     const updatedOrder = { ...order, ...updateOrderDto };
 
     await this.orderRepository.save(updatedOrder);
@@ -83,18 +92,22 @@ export class OrdersService {
   }
 
   async remove(id: string) {
-    const order = await this.orderRepository.findOne({ where: { id } });
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
+    // Start transaction
+    await this.orderRepository.manager.transaction(async (manager: EntityManager) => {
+      const order = await manager.findOne(Order, { where: { id }, relations: ['orderDetails'] });
+      if (!order) {
+        throw new NotFoundException('Order not found');
+      }
 
-    // Elimina primero los detalles de la orden si existen
-    if (order.orderDetails) {
-      await this.orderDetailsService.remove(order.orderDetails.id);
-    }
+      // Elimina primero los detalles de la orden si existen
+      if (order.orderDetails) {
+        await manager.remove(order.orderDetails);
+      }
 
-    // Luego elimina la orden
-    await this.orderRepository.delete(id);
+      // Luego elimina la orden
+      await manager.remove(order);
+    });
+
     return { message: 'Order removed successfully' };
   }
 }

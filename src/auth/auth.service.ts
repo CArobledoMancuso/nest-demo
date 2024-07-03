@@ -5,6 +5,7 @@ import { UserService } from 'src/user/user.service';
 import { SignInAuthDto } from './dto/signin-auth.dto';
 import { User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { Role } from 'src/user/enum/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
   ) {}
+
   async signIn(signInUser: SignInAuthDto) {
     const user = await this.userService.findByEmail(signInUser.email);
     if (!user) {
@@ -22,8 +24,6 @@ export class AuthService {
       signInUser.password,
       user.password,
     );
-
-    console.log(isPasswordMatching);
 
     if (!isPasswordMatching) {
       throw new HttpException(
@@ -49,7 +49,7 @@ export class AuthService {
     const payload = {
       id: user.id,
       email: user.email,
-      roles: user.administrator,
+      roles: user.admin ? [Role.Admin] : [Role.User],
     };
 
     return this.jwtService.signAsync(payload);

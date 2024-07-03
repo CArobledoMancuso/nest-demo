@@ -36,6 +36,7 @@ export class User {
   @Column()
   createdAt: string;
 
-  @Column({ default: Role.User })
-  administrator: string;
+  @Column({ default: false })
+  admin: boolean; // Nuevo campo
+
 }
