@@ -17,7 +17,7 @@ async function bootstrap() {
   );
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Cristian Robledo')
-    .setDescription('Presentacio del proyecto del modulo 4 back-end')
+    .setDescription('Presentación del proyecto del modulo 4 back-end')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

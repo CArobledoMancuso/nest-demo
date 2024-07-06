@@ -3,4 +3,4 @@ export const categories: string[] = [
   'mouse',
   'monitor',
   'keyboard',
-];
+]

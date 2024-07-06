@@ -58,6 +58,7 @@ export class UserController {
   }
 
   @Get('pag')
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Obtener usuarios con paginación' })
   @ApiQuery({ name: 'page', required: false, type: Number })

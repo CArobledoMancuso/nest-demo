@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -22,5 +23,6 @@ export class OrderDetail {
   order: Order;
 
   @ManyToMany(() => Product, (product) => product.orderDetails)
+ @JoinTable()
   products: Product[];
 }
