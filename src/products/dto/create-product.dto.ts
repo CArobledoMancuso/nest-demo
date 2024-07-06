@@ -7,6 +7,7 @@ export class CreateProductDto {
     description: 'El nombre del producto',
     maxLength: 50,
     required: true,
+    example: 'Smartphone XYZ', // Ejemplo de nombre del producto
   })
   @MaxLength(50)
   @IsNotEmpty()
@@ -17,6 +18,7 @@ export class CreateProductDto {
     type: String,
     description: 'La descripción del producto',
     required: true,
+    example: 'Smartphone con pantalla de 6.5 pulgadas y 128GB de almacenamiento', // Ejemplo de descripción del producto
   })
   @IsNotEmpty()
   @IsString()
@@ -26,6 +28,7 @@ export class CreateProductDto {
     type: Number,
     description: 'El precio del producto',
     required: true,
+    example: 299.99, // Ejemplo de precio del producto
   })
   @IsNotEmpty()
   @IsNumber()
@@ -35,6 +38,7 @@ export class CreateProductDto {
     type: Number,
     description: 'El stock del producto',
     required: true,
+    example: 50, // Ejemplo de stock del producto
   })
   @IsNotEmpty()
   @IsNumber()
@@ -44,6 +48,7 @@ export class CreateProductDto {
     type: String,
     description: 'La URL de la imagen del producto',
     required: false,
+    example: 'https://example.com/images/smartphone_xyz.jpg', // Ejemplo de URL de imagen
   })
   @IsString()
   @IsOptional()

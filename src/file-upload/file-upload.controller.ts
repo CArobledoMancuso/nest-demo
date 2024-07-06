@@ -2,15 +2,12 @@ import {
   Controller,
   Post,
   Param,
-  UsePipes,
   UseGuards,
   HttpCode,
   UseInterceptors,
   UploadedFile,
   ParseUUIDPipe,
   BadRequestException,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { FileUploadService } from './file-upload.service';
@@ -35,8 +32,17 @@ export class FileUploadController {
   })
   @ApiBody({
     description: 'Imagen que se subirá',
-    type: 'multipart/form-data',
     required: true,
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo de imagen a subir',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: 200,

@@ -14,6 +14,7 @@ export class PartialProductDTO extends PartialType(Product) {
   @ApiProperty({
     type: String,
     description: 'El ID del producto',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     required: true,
   })
   @IsUUID()
@@ -24,6 +25,7 @@ export class CreateOrderDto {
   @ApiProperty({
     type: String,
     description: 'El ID del usuario que realiza el pedido',
+    example: '123e4567-e89b-12d3-a456-426614174000',
     required: true,
   })
   @IsString()
@@ -33,6 +35,14 @@ export class CreateOrderDto {
   @ApiProperty({
     type: [PartialProductDTO],
     description: 'La lista de productos en el pedido',
+    example: [
+      {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+      },
+      {
+        id: '123e4567-e89b-12d3-a456-426614174001',
+      },
+    ],
     required: true,
   })
   @IsArray()
