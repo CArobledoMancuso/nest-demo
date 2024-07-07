@@ -2,7 +2,7 @@ name: render-deploy-nest-backend
 
 on:
   push:
-    branches: class-12-deploy
+    branches: main
 
 jobs:
   deploy:
